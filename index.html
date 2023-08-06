@@ -4,27 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.2/chart.min.js" integrity="sha512-csUso5vWY3PpIJkxLWFbPI7KkjXFhKXpUaAUp1ZLyNhxVWdQacEPH9e7Iw6Rco4es1uQNnlxdCCFkSnJ/f1ZzA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <title>Конвертер валют</title>
 </head>
 <body>
     <main class="main">
         <div class="container">
-            <h1 class="title"></h1>
+            <h1 class="title">Конвертер валют</h1>
             <div class="converter__wrapper">
                 <div class="converter__input">
-                    <input class="first-valute" type="text">
-                    
+                    <input class="first__value" value="1" type="number">
+                    <select class="first-valute" name="valute-first">
+                        <option value="USD" selected="selected">Доллар США</option>
+                    </select>
                 </div>
                 <div class="flipper">
-                    <img src="img/flipper.svg" alt="">
+                    <img src="img/flipper.png" alt="">
                 </div>
                 <div class="converter__input">
-                    <input class="second-valute" type="text">
-                    
+                    <input class="second__value" value="1" type="number">
+                    <select class="second-valute" name="valute-first">
+                        <option value="USD" selected="selected">Доллар США</option>
+                    </select>
                 </div>
             </div>
         </div>
+
+        <div>
+            <canvas id="myChart"></canvas>
+          </div>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     </main>
+    
     <script src="dist/bundle.js"></script>
 </body>
 </html>
