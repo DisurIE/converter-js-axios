@@ -85,7 +85,7 @@ let firstValute = document.querySelector('.first-valute'),
       let currMilliseconds = date.getTime();
       let arr = [];
       for(let i = 0; i < daysLength; i++){
-        arr.push(getFormateDate(date));
+        arr.unshift(getFormateDate(date));
         currMilliseconds -= MILLISECONDSINDAY;
         date = new Date(currMilliseconds);
         //console.log(date)
@@ -96,7 +96,7 @@ let firstValute = document.querySelector('.first-valute'),
     async function getValueByDates(arr){
       let values = [];
       let v2 = [];
-      let v3 = [];
+      let arrYear = [];
       for(let i = 0; i < arr.length; i++){
         const req = axios.get(`https://cbu.uz/ru/arkhiv-kursov-valyut/json/RUB/${arr[i]}/`);
         values.push(req);
@@ -105,39 +105,80 @@ let firstValute = document.querySelector('.first-valute'),
       v2 = Promise.all(values);
       const res = await v2;
       for(let i = 0; i < res.length; i++){
-        v3.push(res[i].data[0].Rate)
+        arrYear.push(res[i].data[0].Rate)
+      }
+      let arrWeek = [];
+      let arrMonth = [];
+      if(res.length >= 7){
+        for(let i = 0; i < 7; i++){
+          arrWeek.push(arrYear[i])
+        }
+      }
+      if(res.length >= 31){
+        for(let i = 0; i < 31; i++){
+          arrMonth.push(arrYear[i])
+        }
       }
       console.log(res);
-      return v3;
+      return [arrYear, arrMonth, arrWeek];
     }
+    
     function getFormateDate(date){
       return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
     }
-    
-    const values = await getValueByDates(getDates(date, DAYSINYEAR));
 
-    // Вывод графика изменения стоимости валюты 
     const ctx = document.getElementById('myChart');
 
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: getDates(date, DAYSINYEAR).reverse(),
-        datasets: [{
-          label: 'Стоимость',
-          data: values.reverse(),
-          borderWidth: 3
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: false
+    let arr = await getValueByDates(getDates(date, DAYSINYEAR));
+
+    let valuesForYear = arr[0];
+    let valuesForMonth = arr[1];
+    let valuesForWeek = arr[2];
+
+    // Вывод графика изменения стоимости валюты 
+    let chart = createChart(getDates(date, DAYSINWEEK), valuesForWeek);
+    function createChart(labels, values){
+      return new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Стоимость',
+            data: values,
+            borderWidth: 3
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: false
+            }
           }
         }
-      }
+      });
+    }
+    
+    const weekChart = document.querySelector('.chart-for-week'),
+          monthChart = document.querySelector('.chart-for-month'),
+          yearChart = document.querySelector('.chart-for-year');
+
+    weekChart.addEventListener('click', (e) => {
+      chart.destroy();
+      e.preventDefault();
+      chart = createChart(getDates(date, DAYSINWEEK), valuesForWeek);
     });
 
+    monthChart.addEventListener('click', (e) => {
+      chart.destroy();
+      e.preventDefault();
+      chart = createChart(getDates(date, DAYSINMONTH), valuesForMonth);
+    });
+
+    yearChart.addEventListener('click', (e) => {
+      chart.destroy();
+      e.preventDefault();
+      chart = createChart(getDates(date, DAYSINYEAR), valuesForYear);
+    });
 //addEventSelect(firstValute,valuteOne);
 //addEventSelect(secondValute, valuteTwo);
 /*for(let valute in res.data.Valute){
