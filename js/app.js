@@ -1,11 +1,14 @@
 import axios from 'axios';
 import Valute from './valute';
+
 // https://cbu.uz/ru/arkhiv-kursov-valyut/json/ банк Узбекистана
-// https://www.cbr-xml-daily.ru/daily_json.js Валюты
+// https://www.cbr-xml-daily.ru/daily_json.js Валюты на сегодня
 // https://cbu.uz/ru/arkhiv-kursov-valyut/json/RUB/ Рубль на сегодня
+
 const req = axios.get('https://www.cbr-xml-daily.ru/daily_json.js');
 const res = await req;
 let Value = 'Value';
+
 //console.log(res.data);
 
 const DAYSINWEEK = 7;
@@ -13,11 +16,13 @@ const DAYSINMONTH = 31;
 const DAYSINYEAR = 200;
 const MILLISECONDSINDAY = 86400000;
 
-let firstValute = document.querySelector('.first-valute'),
-    secondValute = document.querySelector('.second-valute'),
-    firstInput = document.querySelector('.first__value'),
-    secondInput = document.querySelector('.second__value'),
-    flipper = document.querySelector('.flipper');
+const firstValute = document.querySelector('.first-valute'),
+      secondValute = document.querySelector('.second-valute'),
+      firstInput = document.querySelector('.first__value'),
+      secondInput = document.querySelector('.second__value'),
+      flipper = document.querySelector('.flipper');
+
+    const ctx = document.getElementById('myChart');
 
     let valuteOne = res.data.Valute['USD'],
         valuteTwo = res.data.Valute['USD'];
@@ -30,8 +35,6 @@ let firstValute = document.querySelector('.first-valute'),
 
     addValutesInSelect(res.data.Valute, firstValute)
     addValutesInSelect(res.data.Valute, secondValute)
-
-  
 
     // Навешиваем событие на первый select
     firstValute.addEventListener('change', (e) => {
@@ -66,17 +69,21 @@ let firstValute = document.querySelector('.first-valute'),
         secondValute.value = valuteTwo.CharCode; 
         changeNum();
     });
+
     // пересчитываем значение во втором input
     function changeNum(){
         secondInput.value = (firstInput.value * ((valuteOne[Value]/valuteOne.Nominal) / (valuteTwo[Value]/valuteTwo.Nominal))).toFixed(4);
     }
+
     // пересчитываем значение во первом input
     function changeNumTwo(){
         firstInput.value = (secondInput.value * ((valuteTwo[Value]/valuteTwo.Nominal) / (valuteOne[Value]/valuteOne.Nominal) )).toFixed(4);
     }
+
     /*
-    Работаем с датами ================================================================
+      Работаем с датами ================================================================
     */
+
     // Получаем сегодняшнюю дату
     const date = new Date();
     
@@ -92,6 +99,11 @@ let firstValute = document.querySelector('.first-valute'),
       }
       return arr;
     }
+
+    /*
+      асинхронная функция возвращает массив с массивами значений валют
+      за неделю месяц и год
+    */
 
     async function getValueByDates(arr){
       let values = [];
@@ -109,13 +121,13 @@ let firstValute = document.querySelector('.first-valute'),
       }
       let arrWeek = [];
       let arrMonth = [];
-      if(res.length >= 7){
-        for(let i = 0; i < 7; i++){
+      if(res.length >= DAYSINWEEK){
+        for(let i = 0; i < DAYSINWEEK; i++){
           arrWeek.push(arrYear[i])
         }
       }
-      if(res.length >= 31){
-        for(let i = 0; i < 31; i++){
+      if(res.length >= DAYSINMONTH){
+        for(let i = 0; i < DAYSINMONTH; i++){
           arrMonth.push(arrYear[i])
         }
       }
@@ -127,8 +139,7 @@ let firstValute = document.querySelector('.first-valute'),
       return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
     }
 
-    const ctx = document.getElementById('myChart');
-
+    
     let arr = await getValueByDates(getDates(date, DAYSINYEAR));
 
     let valuesForYear = arr[0];
@@ -179,10 +190,11 @@ let firstValute = document.querySelector('.first-valute'),
       e.preventDefault();
       chart = createChart(getDates(date, DAYSINYEAR), valuesForYear);
     });
-//addEventSelect(firstValute,valuteOne);
-//addEventSelect(secondValute, valuteTwo);
-/*for(let valute in res.data.Valute){
-    firstValute.innerHTML += `<option value="${valute}" >${res.data.Valute[valute].Name}</option>`;
-}*/
+
+    //addEventSelect(firstValute,valuteOne);
+    //addEventSelect(secondValute, valuteTwo);
+    /*for(let valute in res.data.Valute){
+        firstValute.innerHTML += `<option value="${valute}" >${res.data.Valute[valute].Name}</option>`;
+    }*/
 
     
